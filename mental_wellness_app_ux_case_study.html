@@ -1,0 +1,650 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .cs-root { padding: 1.5rem 0; max-width: 680px; }
+  .nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab-btn {
+    padding: 6px 14px; font-size: 13px; border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md); background: var(--color-background-primary);
+    color: var(--color-text-secondary); cursor: pointer; transition: all .15s;
+  }
+  .tab-btn:hover { background: var(--color-background-secondary); }
+  .tab-btn.active {
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Shared card */
+  .card {
+    background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px;
+  }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+  .card-sub { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+  /* Section header */
+  .sec-header { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .sec-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1rem; line-height: 1.6; }
+
+  /* Badges */
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: var(--border-radius-md); font-weight: 500; margin-right: 4px; margin-bottom: 4px;
+  }
+  .badge-teal { background: #E1F5EE; color: #0F6E56; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .badge-coral { background: #FAECE7; color: #993C1D; }
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+
+  /* Persona card */
+  .persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 500px) { .persona-grid { grid-template-columns: 1fr; } }
+  .persona-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .persona-head { padding: 14px; display: flex; align-items: center; gap: 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 14px; flex-shrink: 0; }
+  .persona-body { padding: 12px 14px; }
+  .persona-row { margin-bottom: 10px; }
+  .persona-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-tertiary); margin-bottom: 3px; }
+  .persona-val { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+
+  /* User flow */
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 12px; padding: 12px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0;
+    background: var(--color-background-info); color: var(--color-text-info);
+  }
+  .step-content { flex: 1; }
+  .step-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .step-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.5; }
+  .step-arrow { font-size: 18px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+  /* Wireframes */
+  .wf-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .wf-btn {
+    padding: 5px 12px; font-size: 12px; border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md); background: transparent; cursor: pointer;
+    color: var(--color-text-secondary);
+  }
+  .wf-btn.sel { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+  .wf-area { display: flex; gap: 1rem; align-items: flex-start; }
+  .phone-frame {
+    width: 180px; flex-shrink: 0; background: var(--color-background-primary);
+    border: 2px solid var(--color-border-primary); border-radius: 24px; padding: 10px 8px;
+    min-height: 340px; position: relative;
+  }
+  .phone-notch { width: 50px; height: 8px; background: var(--color-border-secondary); border-radius: 4px; margin: 0 auto 10px; }
+  .wf-desc { flex: 1; }
+  .wf-desc-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .wf-element { padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .wf-element:last-child { border-bottom: none; }
+  .wf-el-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+  .wf-el-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  /* Phone UI elements */
+  .ph-bar { height: 7px; border-radius: 4px; background: var(--color-border-secondary); margin-bottom: 5px; }
+  .ph-rect { border-radius: 6px; background: var(--color-background-secondary); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; }
+  .ph-text { font-size: 8px; color: var(--color-text-secondary); }
+  .ph-btn { border-radius: 20px; background: var(--color-background-info); height: 20px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; }
+  .ph-btn-text { font-size: 8px; color: var(--color-text-info); font-weight: 500; }
+  .ph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+  .ph-card { border-radius: 6px; background: var(--color-background-secondary); height: 42px; display: flex; align-items: center; justify-content: center; }
+  .ph-row { display: flex; gap: 5px; margin-bottom: 5px; }
+  .ph-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--color-background-tertiary); flex-shrink: 0; }
+  .ph-nav { display: flex; justify-content: space-around; border-top: 0.5px solid var(--color-border-secondary); padding-top: 6px; margin-top: 6px; }
+  .ph-nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border-secondary); }
+  .ph-nav-dot.active { background: var(--color-text-info); }
+  .ph-divider { height: 0.5px; background: var(--color-border-tertiary); margin: 5px 0; }
+  .ph-tag { display: inline-block; font-size: 7px; padding: 1px 5px; border-radius: 8px; background: var(--color-background-secondary); color: var(--color-text-secondary); margin-right: 3px; }
+
+  /* Design thinking */
+  .dt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .dt-grid { grid-template-columns: 1fr; } }
+  .dt-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px; }
+  .dt-icon { font-size: 18px; margin-bottom: 6px; }
+  .dt-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .dt-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.55; }
+  .dt-output { font-size: 11px; color: var(--color-text-tertiary); margin-top: 6px; }
+  .dt-output strong { color: var(--color-text-secondary); font-weight: 500; }
+
+  /* Deliverables */
+  .del-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .del-row:last-child { border-bottom: none; }
+  .del-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .del-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .del-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .figma-tip { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; margin-top: 12px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+  .figma-tip strong { color: var(--color-text-primary); font-weight: 500; }
+</style>
+
+<div class="cs-root">
+  <h2 style="sr-only">Mental Wellness App UX Case Study</h2>
+
+  <!-- Title -->
+  <div style="margin-bottom:1.25rem">
+    <div style="font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:4px">UI/UX Case Study</div>
+    <div style="font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">MindMate — Mental Wellness App</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6">A portfolio-quality UX case study covering research, personas, user flow, wireframes, and design thinking — ready for Figma conversion or GitHub submission.</div>
+    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+      <span class="badge badge-teal">Mental Health</span>
+      <span class="badge badge-purple">Mood Tracking</span>
+      <span class="badge badge-blue">Journaling</span>
+      <span class="badge badge-amber">Guided Breathing</span>
+      <span class="badge badge-coral">Community</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('research')">1. Research</button>
+    <button class="tab-btn" onclick="showTab('personas')">2. Personas</button>
+    <button class="tab-btn" onclick="showTab('flow')">3. User Flow</button>
+    <button class="tab-btn" onclick="showTab('wireframes')">4. Wireframes</button>
+    <button class="tab-btn" onclick="showTab('dt')">5. Design Thinking</button>
+    <button class="tab-btn" onclick="showTab('deliverables')">6. Deliverables</button>
+  </div>
+
+  <!-- 1. Research -->
+  <div id="tab-research" class="section active">
+    <div class="sec-header">User Research</div>
+    <div class="sec-desc">Understanding who we design for — their daily challenges with mental health and what they need from a digital wellness companion.</div>
+
+    <div class="card">
+      <div class="card-title">Problem Statement</div>
+      <div class="card-sub">Young adults (18–35) in high-stress environments struggle with anxiety, burnout, and emotional overwhelm — yet find traditional therapy inaccessible due to cost, stigma, or time constraints. They need a low-barrier, private, and supportive digital tool to manage their mental wellbeing daily.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Target User Segments</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Primary Users</div>
+          <div class="card-sub">College students and early-career professionals aged 18–30 dealing with academic or workplace stress, often first-time mental health app users.</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Secondary Users</div>
+          <div class="card-sub">Working professionals aged 30–40 managing burnout, parenting, or work-life balance issues who have tried therapy and want a daily supplement.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Key User Needs</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+        <div style="font-size:12px;color:var(--color-text-secondary);padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">Track mood without effort — quick daily check-ins, not lengthy forms</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">Private, judgment-free journaling to process emotions</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">Quick, guided breathing or mindfulness for stressful moments</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">See their emotional patterns over time to build self-awareness</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pain Points Identified</div>
+      <div class="del-row"><div class="del-dot" style="background:#E24B4A"></div><div><div class="del-title">Existing apps feel clinical or overwhelming</div><div class="del-desc">Users abandon apps with too many features, complex onboarding, or sterile medical UI.</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#E24B4A"></div><div><div class="del-title">Forgetting to log moods</div><div class="del-desc">Without gentle reminders, users miss daily check-ins and lose streak motivation.</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#E24B4A"></div><div><div class="del-title">No sense of progress</div><div class="del-desc">Users give up when they don't see meaningful insights or improvement over time.</div></div></div>
+      <div class="del-row" style="border:none"><div class="del-dot" style="background:#E24B4A"></div><div><div class="del-title">Privacy concerns</div><div class="del-desc">Many users fear their mental health data could be shared or exposed.</div></div></div>
+    </div>
+  </div>
+
+  <!-- 2. Personas -->
+  <div id="tab-personas" class="section">
+    <div class="sec-header">User Personas</div>
+    <div class="sec-desc">Fictional but research-based representations of our core users. These guide every design decision — we always ask: "Would Priya find this helpful?"</div>
+
+    <div class="persona-grid">
+      <!-- Persona 1 -->
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar" style="background:#E1F5EE;color:#0F6E56">PK</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Priya Kapoor</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">23 · MSc Student, Hyderabad</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-row">
+            <div class="persona-label">About</div>
+            <div class="persona-val">Final-year student juggling thesis deadlines, part-time work, and family expectations. First time actively seeking mental health support.</div>
+          </div>
+          <div class="persona-row">
+            <div class="persona-label">Goals</div>
+            <div class="persona-val">Reduce daily anxiety · Build a journaling habit · Sleep better · Feel less alone</div>
+          </div>
+          <div class="persona-row">
+            <div class="persona-label">Frustrations</div>
+            <div class="persona-val">Apps feel "too much" on day one · Forgets to check in · Worried about data privacy</div>
+          </div>
+          <div class="persona-row" style="margin-bottom:0">
+            <div class="persona-label">Behaviour</div>
+            <div class="persona-val">Uses phone 4–5 hrs/day · Prefers short, daily habits · Responds well to gentle encouragement</div>
+          </div>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap">
+            <span class="badge badge-teal">Anxious</span>
+            <span class="badge badge-purple">Student</span>
+            <span class="badge badge-blue">Beginner</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 2 -->
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar" style="background:#EEEDFE;color:#3C3489">AR</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Arjun Rao</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">31 · Software Engineer, Bengaluru</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-row">
+            <div class="persona-label">About</div>
+            <div class="persona-val">Senior developer dealing with burnout after a product launch. Has tried therapy once; looking for a daily self-care routine between sessions.</div>
+          </div>
+          <div class="persona-row">
+            <div class="persona-label">Goals</div>
+            <div class="persona-val">Track mood patterns · Identify stress triggers · Practice mindfulness · Maintain work-life balance</div>
+          </div>
+          <div class="persona-row">
+            <div class="persona-label">Frustrations</div>
+            <div class="persona-val">Wants data and insights, not just affirmations · No time for long sessions · Needs offline mode</div>
+          </div>
+          <div class="persona-row" style="margin-bottom:0">
+            <div class="persona-label">Behaviour</div>
+            <div class="persona-val">Data-driven mindset · Checks phone in commute · Expects the app to be fast and reliable</div>
+          </div>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap">
+            <span class="badge badge-coral">Burnout</span>
+            <span class="badge badge-amber">Data-driven</span>
+            <span class="badge badge-teal">Intermediate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">What these personas tell us about the design</div>
+      <div class="card-sub">Both users need a fast, non-intimidating entry point. Priya needs encouragement and simplicity; Arjun needs depth and data. The app must serve both — a simple surface with optional depth. Onboarding should take under 2 minutes, and the daily check-in under 30 seconds.</div>
+    </div>
+  </div>
+
+  <!-- 3. User Flow -->
+  <div id="tab-flow" class="section">
+    <div class="sec-header">User Flow</div>
+    <div class="sec-desc">The path a new user takes from launching the app for the first time to completing their first mood check-in and journaling session — the core value action.</div>
+
+    <div class="card" style="padding:0.75rem 1.25rem">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Key Task: Complete first mood check-in + journal entry</div>
+
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-name">App launch — Splash Screen</div>
+          <div class="step-desc">Logo animates in. App checks auth status. New user → goes to Onboarding. Returning user → goes to Home.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-name">Onboarding (3 slides)</div>
+          <div class="step-desc">Quick swipeable slides explaining core features. No login required yet. "Get Started" button on slide 3.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-name">Sign Up / Login</div>
+          <div class="step-desc">Email + password or Google sign-in. Phone number optional. Privacy policy displayed clearly. Estimated time: 60 seconds.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-name">Home Screen</div>
+          <div class="step-desc">Personalised greeting, daily check-in prompt card, streak tracker, and quick-access tiles for Journal, Breathe, and Insights.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-name">Mood Check-in (tap "How are you feeling?")</div>
+          <div class="step-desc">5 emotion tiles (Happy, Calm, Neutral, Anxious, Sad). User taps one. Optional: add sub-emotions tags. Takes under 15 seconds.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-name">Journal Prompt (optional, auto-suggested)</div>
+          <div class="step-desc">AI-generated prompt based on mood selected (e.g. "What made you feel anxious today?"). Free-form text entry with voice option.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">7</div>
+        <div class="step-content">
+          <div class="step-name">Completion + Insight nudge</div>
+          <div class="step-desc">Positive affirmation shown. Quick insight: "You've felt calm 3 times this week." Option to explore Breathe or Insights.</div>
+        </div>
+      </div>
+      <div class="flow-step" style="border-bottom:none">
+        <div class="step-num">8</div>
+        <div class="step-content">
+          <div class="step-name">Home (updated state)</div>
+          <div class="step-desc">Check-in card now shows today's logged mood. Streak counter incremented. User can navigate to other sections via bottom nav.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Decision points in the flow</div>
+      <div class="card-sub">At Step 6 (Journal), the user can skip — this is a soft optional step, never forced. At Step 7, the user can dismiss the insight nudge. These choices prevent the app from feeling like a chore and respect user autonomy — a core mental wellness design principle.</div>
+    </div>
+  </div>
+
+  <!-- 4. Wireframes -->
+  <div id="tab-wireframes" class="section">
+    <div class="sec-header">Low-Fidelity Wireframes</div>
+    <div class="sec-desc">Each screen shows layout, component placement, and hierarchy — without colour, imagery, or final typography. These are the blueprint for Figma.</div>
+
+    <div class="wf-picker">
+      <button class="wf-btn sel" onclick="showWF('splash',this)">Splash</button>
+      <button class="wf-btn" onclick="showWF('login',this)">Login</button>
+      <button class="wf-btn" onclick="showWF('home',this)">Home</button>
+      <button class="wf-btn" onclick="showWF('checkin',this)">Check-in</button>
+      <button class="wf-btn" onclick="showWF('journal',this)">Journal</button>
+      <button class="wf-btn" onclick="showWF('profile',this)">Profile</button>
+    </div>
+
+    <div class="wf-area">
+      <!-- Phone frame -->
+      <div class="phone-frame" id="phone-preview">
+        <div class="phone-notch"></div>
+        <!-- Splash default -->
+        <div id="wf-splash">
+          <div style="height:60px"></div>
+          <div style="width:50px;height:50px;border-radius:12px;background:var(--color-background-secondary);margin:0 auto 10px"></div>
+          <div class="ph-bar" style="width:70%;margin:0 auto 6px;height:10px;border-radius:6px"></div>
+          <div class="ph-bar" style="width:45%;margin:0 auto 30px;height:7px"></div>
+          <div style="height:50px"></div>
+          <div class="ph-bar" style="width:30%;margin:0 auto;height:6px"></div>
+        </div>
+        <div id="wf-login" style="display:none">
+          <div class="ph-bar" style="width:60%;margin:0 auto 12px;height:8px;border-radius:4px"></div>
+          <div class="ph-bar" style="width:80%;margin:0 auto 16px;height:5px"></div>
+          <div class="ph-rect" style="height:22px;margin-bottom:8px"><span class="ph-text">Email address</span></div>
+          <div class="ph-rect" style="height:22px;margin-bottom:12px"><span class="ph-text">Password</span></div>
+          <div class="ph-btn" style="margin-bottom:8px"><span class="ph-btn-text">Sign In</span></div>
+          <div class="ph-btn" style="background:var(--color-background-secondary);margin-bottom:12px"><span class="ph-text">Continue with Google</span></div>
+          <div class="ph-bar" style="width:50%;margin:0 auto 10px;height:5px"></div>
+          <div class="ph-bar" style="width:40%;margin:0 auto;height:5px"></div>
+        </div>
+        <div id="wf-home" style="display:none">
+          <div class="ph-row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div><div class="ph-bar" style="width:70px;margin:0;height:7px;margin-bottom:3px"></div><div class="ph-bar" style="width:50px;margin:0;height:5px"></div></div>
+            <div class="ph-avatar"></div>
+          </div>
+          <div class="ph-rect" style="height:54px;margin-bottom:8px;padding:6px">
+            <div style="width:100%"><div class="ph-bar" style="height:6px;margin:0 0 4px;width:70%"></div><div class="ph-bar" style="height:5px;margin:0;width:50%"></div></div>
+          </div>
+          <div class="ph-grid">
+            <div class="ph-card"><span class="ph-text">Mood</span></div>
+            <div class="ph-card"><span class="ph-text">Journal</span></div>
+            <div class="ph-card"><span class="ph-text">Breathe</span></div>
+            <div class="ph-card"><span class="ph-text">Insights</span></div>
+          </div>
+          <div class="ph-bar" style="height:6px;width:60%;margin:6px 0 4px"></div>
+          <div style="display:flex;gap:4px;margin-bottom:4px">
+            <div style="width:16px;height:16px;border-radius:3px;background:var(--color-background-secondary)"></div>
+            <div style="flex:1"><div class="ph-bar" style="height:4px;margin:0 0 2px;width:80%"></div><div class="ph-bar" style="height:4px;margin:0;width:50%"></div></div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div style="width:16px;height:16px;border-radius:3px;background:var(--color-background-secondary)"></div>
+            <div style="flex:1"><div class="ph-bar" style="height:4px;margin:0 0 2px;width:70%"></div><div class="ph-bar" style="height:4px;margin:0;width:40%"></div></div>
+          </div>
+          <div class="ph-nav">
+            <div class="ph-nav-dot active"></div>
+            <div class="ph-nav-dot"></div>
+            <div class="ph-nav-dot"></div>
+            <div class="ph-nav-dot"></div>
+          </div>
+        </div>
+        <div id="wf-checkin" style="display:none">
+          <div class="ph-bar" style="width:70%;margin:0 auto 4px;height:8px;border-radius:4px"></div>
+          <div class="ph-bar" style="width:50%;margin:0 auto 14px;height:5px"></div>
+          <div style="display:flex;justify-content:space-around;margin-bottom:14px">
+            <div style="text-align:center"><div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-secondary);margin:0 auto 3px"></div><div class="ph-bar" style="width:24px;height:4px;margin:0 auto"></div></div>
+            <div style="text-align:center"><div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-secondary);margin:0 auto 3px"></div><div class="ph-bar" style="width:20px;height:4px;margin:0 auto"></div></div>
+            <div style="text-align:center"><div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-info);margin:0 auto 3px"></div><div class="ph-bar" style="width:28px;height:4px;margin:0 auto"></div></div>
+            <div style="text-align:center"><div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-secondary);margin:0 auto 3px"></div><div class="ph-bar" style="width:22px;height:4px;margin:0 auto"></div></div>
+            <div style="text-align:center"><div style="width:28px;height:28px;border-radius:50%;background:var(--color-background-secondary);margin:0 auto 3px"></div><div class="ph-bar" style="width:18px;height:4px;margin:0 auto"></div></div>
+          </div>
+          <div class="ph-bar" style="width:55%;margin:0 auto 8px;height:5px"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:14px">
+            <span class="ph-tag">Work stress</span><span class="ph-tag">Family</span><span class="ph-tag">Sleep</span><span class="ph-tag">Social</span><span class="ph-tag">Health</span>
+          </div>
+          <div class="ph-btn"><span class="ph-btn-text">Save mood</span></div>
+        </div>
+        <div id="wf-journal" style="display:none">
+          <div class="ph-bar" style="width:60%;margin:0 auto 4px;height:7px;border-radius:4px"></div>
+          <div class="ph-rect" style="height:28px;margin-bottom:8px;border:0.5px solid var(--color-border-secondary)"><span class="ph-text">AI prompt: "What made you anxious today?"</span></div>
+          <div class="ph-rect" style="height:90px;margin-bottom:8px;align-items:flex-start;padding:6px;border:0.5px solid var(--color-border-secondary)"><span class="ph-text" style="opacity:.5">Write freely here...</span></div>
+          <div style="display:flex;gap:5px;margin-bottom:10px">
+            <div class="ph-btn" style="flex:1;background:var(--color-background-secondary)"><span class="ph-text">Voice</span></div>
+            <div class="ph-btn" style="flex:1;background:var(--color-background-secondary)"><span class="ph-text">Mood tag</span></div>
+          </div>
+          <div class="ph-btn"><span class="ph-btn-text">Save entry</span></div>
+          <div class="ph-bar" style="width:40%;margin:8px auto 0;height:5px"></div>
+        </div>
+        <div id="wf-profile" style="display:none">
+          <div style="text-align:center;margin-bottom:10px">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--color-background-secondary);margin:0 auto 5px"></div>
+            <div class="ph-bar" style="width:55%;margin:0 auto 3px;height:7px;border-radius:4px"></div>
+            <div class="ph-bar" style="width:35%;margin:0 auto;height:5px"></div>
+          </div>
+          <div style="display:flex;justify-content:space-around;margin-bottom:10px;text-align:center">
+            <div><div class="ph-bar" style="height:8px;width:28px;margin:0 auto 3px;border-radius:3px"></div><div class="ph-bar" style="height:4px;width:24px;margin:0 auto"></div></div>
+            <div><div class="ph-bar" style="height:8px;width:28px;margin:0 auto 3px;border-radius:3px"></div><div class="ph-bar" style="height:4px;width:24px;margin:0 auto"></div></div>
+            <div><div class="ph-bar" style="height:8px;width:28px;margin:0 auto 3px;border-radius:3px"></div><div class="ph-bar" style="height:4px;width:24px;margin:0 auto"></div></div>
+          </div>
+          <div class="ph-divider"></div>
+          <div style="font-size:8px;color:var(--color-text-secondary);margin-bottom:5px">Settings</div>
+          <div class="ph-row" style="margin-bottom:4px"><div class="ph-bar" style="flex:1;height:5px;margin:0"></div></div>
+          <div class="ph-row" style="margin-bottom:4px"><div class="ph-bar" style="flex:1;height:5px;margin:0"></div></div>
+          <div class="ph-row"><div class="ph-bar" style="flex:1;height:5px;margin:0"></div></div>
+          <div class="ph-divider"></div>
+          <div style="font-size:8px;color:var(--color-text-secondary);margin-bottom:5px">Privacy & Data</div>
+          <div class="ph-row" style="margin-bottom:4px"><div class="ph-bar" style="flex:1;height:5px;margin:0"></div></div>
+          <div class="ph-row"><div class="ph-bar" style="flex:1;height:5px;margin:0"></div></div>
+          <div class="ph-nav">
+            <div class="ph-nav-dot"></div>
+            <div class="ph-nav-dot"></div>
+            <div class="ph-nav-dot"></div>
+            <div class="ph-nav-dot active"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description panel -->
+      <div class="wf-desc" id="wf-desc-panel">
+        <div class="wf-desc-title" id="wf-screen-title">Splash Screen</div>
+        <div id="wf-elements"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Design Thinking -->
+  <div id="tab-dt" class="section">
+    <div class="sec-header">Design Thinking Process</div>
+    <div class="sec-desc">Design Thinking is a 5-stage problem-solving framework used by top product teams. Think of it as the mindset behind every decision in this case study — not just a checklist, but a way of building empathy into the product.</div>
+
+    <div class="dt-grid">
+      <div class="dt-card" style="border-left:3px solid #5DCAA5">
+        <div class="dt-icon">👁</div>
+        <div class="dt-name">1. Empathize</div>
+        <div class="dt-desc">We step into the user's shoes — understanding their emotions, environment, and context without judgment. For MindMate, we imagined a student at 2am, anxious before an exam, opening an app for the first time.</div>
+        <div class="dt-output"><strong>Output:</strong> User interviews insights, affinity maps, empathy maps for Priya and Arjun</div>
+      </div>
+      <div class="dt-card" style="border-left:3px solid #7F77DD">
+        <div class="dt-icon">🎯</div>
+        <div class="dt-name">2. Define</div>
+        <div class="dt-desc">We translate observations into a clear problem statement. Not "build a meditation app" but: "People need a low-effort, private way to recognise and track their emotional state daily."</div>
+        <div class="dt-output"><strong>Output:</strong> Problem statement, How Might We questions, user pain point matrix</div>
+      </div>
+      <div class="dt-card" style="border-left:3px solid #EF9F27">
+        <div class="dt-icon">💡</div>
+        <div class="dt-name">3. Ideate</div>
+        <div class="dt-desc">We brainstorm without filtering. Ideas included: voice journaling, mood emojis, anonymous community spaces, streak rewards, AI-generated reflection prompts, and biometric mood detection. We then prioritised by impact vs effort.</div>
+        <div class="dt-output"><strong>Output:</strong> Feature list, priority matrix, chosen MVP features</div>
+      </div>
+      <div class="dt-card" style="border-left:3px solid #5DCAA5">
+        <div class="dt-icon">📱</div>
+        <div class="dt-name">4. Prototype</div>
+        <div class="dt-desc">We created these low-fidelity wireframes — fast, cheap to make, easy to change. The goal is NOT to make it pretty; it's to test whether the layout and flow make sense to a real user in 2 minutes.</div>
+        <div class="dt-output"><strong>Output:</strong> 6 wireframe screens (this case study), clickable Figma prototype</div>
+      </div>
+      <div class="dt-card" style="border-left:3px solid #D85A30;grid-column:1/-1">
+        <div class="dt-icon">✔</div>
+        <div class="dt-name">5. Test</div>
+        <div class="dt-desc">We show the prototype to real users — ideally 5 people from the target persona groups. We observe without guiding: "Can you find the check-in?" We listen for confusion, hesitation, and delight. Insights from testing loop back to Empathize and Define — the process is never linear.</div>
+        <div class="dt-output"><strong>Output:</strong> Usability test script, 5-user observation notes, iteration list for v2 wireframes</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">Why beginners should care about this process</div>
+      <div class="card-sub">Design Thinking prevents the most common mistake in UX: designing what you think users want instead of what they actually need. Each stage produces an artefact that can be included in your portfolio to show hiring managers your thinking process — not just your Figma skills.</div>
+    </div>
+  </div>
+
+  <!-- 6. Deliverables -->
+  <div id="tab-deliverables" class="section">
+    <div class="sec-header">Deliverables & Case Study Summary</div>
+    <div class="sec-desc">A structured summary in portfolio-ready format — Problem → Solution → Outcome. Use this structure for your GitHub README or Behance case study.</div>
+
+    <div class="card">
+      <div class="card-title">Case Study Structure (Problem → Solution → Outcome)</div>
+      <div class="del-row"><div class="del-dot" style="background:#5DCAA5"></div><div><div class="del-title">Problem</div><div class="del-desc">Young adults in India and globally face rising mental health challenges but lack accessible, stigma-free, easy-to-use daily tools. Therapy is expensive; existing apps feel clinical or overwhelming.</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#7F77DD"></div><div><div class="del-title">Solution</div><div class="del-desc">MindMate — a minimal, privacy-first mobile app offering a 15-second daily mood check-in, AI-prompted journaling, guided breathing, and weekly emotional insights. Designed for one-handed, sleepy-morning use.</div></div></div>
+      <div class="del-row" style="border:none"><div class="del-dot" style="background:#EF9F27"></div><div><div class="del-title">Outcome (projected after usability testing)</div><div class="del-desc">Target: 70% of users complete daily check-in for 7 days straight. Avg. onboarding time under 90 seconds. 80% rate the app as "not overwhelming." Journal entry completion rate of 40%+ when mood is Anxious or Sad.</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Full deliverables list</div>
+      <div class="del-row"><div class="del-dot" style="background:#185FA5"></div><div><div class="del-title">User Research Summary</div><div class="del-desc">Target user segments, needs, and 4 key pain points</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#185FA5"></div><div><div class="del-title">2 User Personas</div><div class="del-desc">Priya Kapoor (student) and Arjun Rao (engineer) with goals, frustrations, and behaviours</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#185FA5"></div><div><div class="del-title">User Flow (8 steps)</div><div class="del-desc">From app launch to completing the first mood check-in and journal entry</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#185FA5"></div><div><div class="del-title">6 Low-Fidelity Wireframes</div><div class="del-desc">Splash, Login, Home, Check-in, Journal, Profile — with element annotations</div></div></div>
+      <div class="del-row"><div class="del-dot" style="background:#185FA5"></div><div><div class="del-title">Design Thinking Process</div><div class="del-desc">All 5 stages explained with outputs mapped to this project</div></div></div>
+      <div class="del-row" style="border:none"><div class="del-dot" style="background:#185FA5"></div><div><div class="del-title">Case Study (Problem → Solution → Outcome)</div><div class="del-desc">Portfolio-ready narrative suitable for GitHub README or Behance</div></div></div>
+    </div>
+
+    <div class="figma-tip">
+      <strong>Figma Conversion Guide (beginner-friendly)</strong><br>
+      1. Create a new Figma file → set frame size to <strong>390 × 844px</strong> (iPhone 14)<br>
+      2. For each wireframe screen: use rectangles (R) for all blocks, text (T) for labels<br>
+      3. Keep everything in grayscale — use Fill: <strong>#F5F5F5</strong> for cards, <strong>#E0E0E0</strong> for bars<br>
+      4. Use Auto Layout for buttons and cards (Shift+A) for easy resizing<br>
+      5. Add a 16px grid (View → Layout Grids) to keep spacing consistent<br>
+      6. Link screens with Prototype tab → arrows from button to next frame for click-through demo
+    </div>
+
+    <button onclick="sendPrompt('Generate a detailed Figma component breakdown for the MindMate Home screen wireframe')" style="margin-top:12px;padding:8px 16px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;cursor:pointer;color:var(--color-text-primary)">Get Figma component breakdown ↗</button>
+  </div>
+</div>
+
+<script>
+const tabs = ['research','personas','flow','wireframes','dt','deliverables'];
+function showTab(id) {
+  tabs.forEach(t => {
+    document.getElementById('tab-'+t).classList.remove('active');
+  });
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', tabs[i] === id);
+  });
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+const wfData = {
+  splash: {
+    title: 'Splash Screen',
+    elements: [
+      { name: 'App Logo (centered)', desc: 'Large icon with app name below it. Communicates brand identity in 1-2 seconds before routing user.' },
+      { name: 'App name + tagline', desc: '"MindMate" in large type, "Your daily mental wellness companion" in small muted text.' },
+      { name: 'Loading indicator', desc: 'Subtle dot pulse or progress bar at bottom. Prevents perceived wait time from feeling long.' },
+    ]
+  },
+  login: {
+    title: 'Login / Sign Up Screen',
+    elements: [
+      { name: 'Screen title + subtitle', desc: '"Welcome back" heading. Short reassuring subtitle about privacy.' },
+      { name: 'Email field', desc: 'Full-width text input with placeholder "Email address". Keyboard type: email.' },
+      { name: 'Password field', desc: 'Full-width masked input. Show/hide toggle icon on the right.' },
+      { name: 'Primary CTA: Sign In', desc: 'Full-width button, most prominent element on screen.' },
+      { name: 'Social login (Google)', desc: 'Secondary button with Google icon. Reduces friction for new users.' },
+      { name: 'Forgot password + Sign up links', desc: 'Small text links below main CTA. Not prominent — secondary action.' },
+    ]
+  },
+  home: {
+    title: 'Home Screen',
+    elements: [
+      { name: 'Header: greeting + avatar', desc: '"Good morning, Priya 🌿" on the left; user avatar circle on the right to access profile.' },
+      { name: 'Daily check-in card', desc: 'Prominent card: "How are you feeling today?" with a tap-to-start button. Disappears after logged.' },
+      { name: '2×2 quick-access grid', desc: 'Mood, Journal, Breathe, Insights — the four core features accessible in one tap from home.' },
+      { name: 'Recent activity feed', desc: 'Last 2 journal entries with timestamp and mood tag. Builds habit reinforcement.' },
+      { name: 'Bottom navigation bar', desc: '4 icons: Home, Journal, Breathe, Profile. Persistent across all main screens.' },
+    ]
+  },
+  checkin: {
+    title: 'Mood Check-in Screen',
+    elements: [
+      { name: 'Screen title', desc: '"How are you feeling right now?" — conversational, not clinical language.' },
+      { name: '5 emotion circles', desc: 'Happy, Calm, Neutral, Anxious, Sad. Icon + label. Selected state has a highlighted border.' },
+      { name: 'Sub-emotion tags (optional)', desc: 'Chips below: Work stress, Family, Sleep, Social, Health. User taps relevant ones. All optional.' },
+      { name: 'Save Mood button', desc: 'Full-width primary button. Only activates after a mood is selected — prevents empty saves.' },
+    ]
+  },
+  journal: {
+    title: 'Journal Screen',
+    elements: [
+      { name: 'AI-generated prompt', desc: 'Contextual to today\'s mood. E.g. "What made you feel anxious today?" Shown in a soft card.' },
+      { name: 'Free-form text area', desc: 'Large open textarea with minimal border. Placeholder: "Write freely here — no one else will see this."' },
+      { name: 'Voice & Mood tag buttons', desc: 'Secondary row of action buttons: Voice input toggle and a mood tag selector for quick tagging.' },
+      { name: 'Save entry button', desc: 'Primary CTA at bottom. "Skip for today" link below in small text — never forced.' },
+    ]
+  },
+  profile: {
+    title: 'Profile / Settings Screen',
+    elements: [
+      { name: 'User avatar + name + streak', desc: 'Circular avatar, display name, "7-day streak 🔥" shown as a stat badge.' },
+      { name: 'Stats row', desc: 'Three metric tiles: Total check-ins, Journal entries, Days active. Visual progress summary.' },
+      { name: 'Settings section', desc: 'Notification preferences, reminder time, theme (light/dark), language.' },
+      { name: 'Privacy & Data section', desc: 'Export my data, Delete account, Privacy policy. Critical trust-building section.' },
+      { name: 'Bottom nav (Profile active)', desc: 'Same persistent bottom nav — Profile icon highlighted.' },
+    ]
+  }
+};
+
+function showWF(key, btn) {
+  document.querySelectorAll('.wf-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  ['splash','login','home','checkin','journal','profile'].forEach(k => {
+    const el = document.getElementById('wf-'+k);
+    if (el) el.style.display = k === key ? '' : 'none';
+  });
+  const data = wfData[key];
+  document.getElementById('wf-screen-title').textContent = data.title;
+  const panel = document.getElementById('wf-elements');
+  panel.innerHTML = data.elements.map(e =>
+    `<div class="wf-element"><div class="wf-el-name">${e.name}</div><div class="wf-el-desc">${e.desc}</div></div>`
+  ).join('');
+}
+
+// Init wireframe descriptions
+showWF('splash', document.querySelector('.wf-btn.sel'));
+</script>
